@@ -14,7 +14,8 @@ def analyze_video_emotion(video_path):
     if not cap.isOpened():
         return {
             "success": False,
-            "error": "Cannot open video file", "path": video_path
+            "error": "Cannot open video file",
+            "path": video_path
             }
     frame_count = 0
 
@@ -41,8 +42,21 @@ def analyze_video_emotion(video_path):
                         enforce_detection=True
                     )
                     emotions = analysis_result[0]['emotion']
-                    for emotion, score in emotions.items():
-                        total_emotions[emotion] += score
+
+                    key_map = {
+                        'angry': 'anger',
+                        'disgust': 'disgust',
+                        'fear': 'fear',
+                        'happy': 'happiness',
+                        'sad': 'sadness',
+                        'surprise': 'surprise',
+                        'neutral': 'neutral'
+                    }
+
+                    for deep_key, score in emotions.items():
+                        if deep_key in key_map:
+                            my_key = key_map[deep_key]
+                            total_emotions[my_key] += score
                     
                     analyzed_frames += 1
                 except Exception as e:
@@ -66,7 +80,7 @@ def analyze_video_emotion(video_path):
             "error": "No face detected in video."
             }
     
-    average_emotions = {k: v / analyzed_frames for k, v in total_emotions.items()}
+    average_emotions = {k: float(v / analyzed_frames) for k, v in total_emotions.items()}
 
     dominant_emotion = max(average_emotions, key= average_emotions.get)
 
