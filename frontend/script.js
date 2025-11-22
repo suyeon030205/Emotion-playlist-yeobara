@@ -12,6 +12,17 @@ let screen1;
 let screen3;
 let retryBtn;
 
+// 화면 섹션
+const screenLogin = document.getElementById("screen-login");
+const screenSignup = document.getElementById("screen-signup");
+const screenMain = document.getElementById("screen-main");
+
+// 로그인/회원가입 폼 & 링크
+const loginForm = document.getElementById("login-form");
+const signupForm = document.getElementById("signup-form");
+const toSignupLink = document.getElementById("to-signup");
+const toLoginLink = document.getElementById("to-login");
+
 let stream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
