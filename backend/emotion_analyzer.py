@@ -88,5 +88,5 @@ def analyze_video_emotion(video_path):
         "success" : True,
         "total_frames_analyzed": analyzed_frames,
         "average_emotions": average_emotions,
-        "dominant_emotions": dominant_emotion
+        "dominant_emotion": dominant_emotion
     }

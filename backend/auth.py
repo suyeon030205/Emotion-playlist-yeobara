@@ -6,7 +6,7 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = register.json
+    data = request.json
     username = data.get('username')
     password = data.get('password')
 
@@ -26,3 +26,15 @@ def login():
     password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
+
+    if user and user.password == password:
+        login_user(user)
+        return jsonify({"success": True, "message": "로그인 성공!"})
+    return jsonify({"success": False, "message": "아이디 또는 비밀번호가 틀렸습니다."}), 401
+    
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"success":True, "message": "로그아웃 되었습니다."})
+    
