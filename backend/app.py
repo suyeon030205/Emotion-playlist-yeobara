@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from API.emotion_analyzer import analyze_video_emotion
-from API.mapping_rules import get_recommendation_keyword
+from emotion_analyzer import analyze_video_emotion
+from mapping_rules import get_recommendation_keyword
 from youtube_client import search_youtube_videos
 
 app = Flask(__name__)   # app이 서버 전체
