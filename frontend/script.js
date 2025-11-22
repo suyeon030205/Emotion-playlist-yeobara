@@ -3,13 +3,96 @@ const analyzeBtn = document.getElementById("analyze-btn");
 const statusText = document.getElementById("status-text");
 const resultArea = document.getElementById("result-area");
 
+
 const analyzingScreen = document.getElementById("analyzing-screen");
 const analyzingEmoji = document.getElementById("analyzing-emoji");
+
+// 화면 섹션
+const screenLogin = document.getElementById("screen-login");
+const screenSignup = document.getElementById("screen-signup");
+const screenMain = document.getElementById("screen-main");
+
+// 로그인/회원가입 폼 & 링크
+const loginForm = document.getElementById("login-form");
+const signupForm = document.getElementById("signup-form");
+const toSignupLink = document.getElementById("to-signup");
+const toLoginLink = document.getElementById("to-login");
+
+
 
 let stream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 let emojiIntervalId = null;
+
+
+function showLoginScreen() {
+  screenLogin.classList.remove("hidden");
+  screenSignup.classList.add("hidden");
+  screenMain.classList.add("hidden");
+}
+
+function showSignupScreen() {
+  screenLogin.classList.add("hidden");
+  screenSignup.classList.remove("hidden");
+  screenMain.classList.add("hidden");
+}
+
+function showMainScreen() {
+  screenLogin.classList.add("hidden");
+  screenSignup.classList.add("hidden");
+  screenMain.classList.remove("hidden");
+
+  // 메인 들어올 때 카메라 시작 (이미 켜져 있으면 무시)
+  if (!stream) {
+    startCamera();
+  }
+}
+
+// "회원가입 하기" 링크
+toSignupLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  showSignupScreen();
+});
+
+// "로그인으로 돌아가기" 링크
+toLoginLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  showLoginScreen();
+});
+
+// 로그인 폼 submit
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+
+  console.log("로그인 시도:", username, password);
+  // TODO: 나중에 로그인 API 붙이기
+
+  showMainScreen();
+});
+
+
+// 회원가입 폼 submit
+signupForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const username = document.getElementById("signup-username").value;
+  const password = document.getElementById("signup-password").value;
+
+  console.log("회원가입 시도:", username, password);
+  // TODO: 나중에 회원가입 API 붙이면 여기서 fetch
+
+  // 가입 후 로그인 화면으로 돌려보내는 흐름
+  showLoginScreen();
+});
+
+
+// 앱 시작 시 로그인 화면 먼저
+showLoginScreen();
+
 
 // -----------------------------------------------------------
 // 1) 웹캠 켜기
@@ -24,7 +107,8 @@ async function startCamera() {
     statusText.innerText = "카메라에 접근할 수 없어요.";
   }
 }
-startCamera();
+
+
 
 // -----------------------------------------------------------
 // 2) 버튼 누르면 1초 녹화
