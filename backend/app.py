@@ -1,12 +1,33 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from flask_login import LoginManager
+from models import db, User
+from auth import auth_bp
 from emotion_analyzer import analyze_video_emotion
 from mapping_rules import get_recommendation_keyword
 from youtube_client import search_youtube_videos
 
 app = Flask(__name__)   # app이 서버 전체
 CORS(app)  # 프론트랑 연결시 필요 (CORS 문제 해결)
+
+app.config['SECRET_KEY'] = 'hackathon_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+with app.app_context():
+    db.create_all()
+
+app.register_blueprint(auth_bp)
 
 UPLOAD_DIR = "tmp"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
