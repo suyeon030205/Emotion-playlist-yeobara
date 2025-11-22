@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 from API.emotion_analyzer import analyze_video_emotion
+from API.mapping_rules import get_recommendation_keyword
+from youtube_client import search_youtube_videos
 
 app = Flask(__name__)   # app이 서버 전체
 CORS(app)  # 프론트랑 연결시 필요 (CORS 문제 해결)
@@ -13,9 +15,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 def home():
     return "Flask Running"
 
-# 감정 분석 엔드포인트 (비디오 받을 준비)
+# 감정 분석 & 유튜브 API 연결
 @app.route("/analyze-emotion", methods=["POST"])    # 파일 업로드(POST)
-def analyze_emotion():
+def analyze_and_search():
     video = request.files.get("video")
 
     if video is None:
@@ -44,7 +46,35 @@ def analyze_emotion():
     if os.path.exists(abs_video_path):
         os.remove(abs_video_path)
 
-    return jsonify(result)
+    if not result.get("success", False):
+        return jsonify(result), 500
+
+    # 감정 분석 결과들
+    success = result.get("success")
+    average_emotions = result.get("average_emotions")
+    dominant_emotion = result.get("dominant_emotion")
+
+    # 감정으로부터 키워드 추출
+    keywords = get_recommendation_keyword(dominant_emotion, average_emotions)
+
+    if not isinstance(keywords, str):
+        keywords = str(keywords)
+
+    # 추천 영상 검색
+    youtube_result = search_youtube_videos(keywords)
+
+    if not youtube_result.get("success", False):
+        return jsonify({
+            "success": False,
+            "error": "Failed to retrieve recommended videos."
+        }), 500
+
+    return jsonify({
+        "success": success,
+        "average_emotions": average_emotions,
+        "dominant_emotion": dominant_emotion,
+        "youtube_result": youtube_result
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
