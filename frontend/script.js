@@ -1,27 +1,34 @@
 const video = document.getElementById("video");
 const analyzeBtn = document.getElementById("analyze-btn");
 const statusText = document.getElementById("status-text");
+const resultArea = document.getElementById("result-area");
 
-let stream = null;          // 웹캠 스트림
-let mediaRecorder = null;   // 녹화기
-let recordedChunks = [];    // 동영상 조각들 저장
+const analyzingScreen = document.getElementById("analyzing-screen");
+const analyzingEmoji = document.getElementById("analyzing-emoji");
 
+let stream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let emojiIntervalId = null;
+
+// -----------------------------------------------------------
 // 1) 웹캠 켜기
+// -----------------------------------------------------------
 async function startCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
     await video.play();
-    console.log("카메라 시작 성공");
   } catch (err) {
     console.error("카메라 접근 실패:", err);
-    statusText.innerText = "카메라에 접근할 수 없어요. 권한을 허용해 주세요.";
+    statusText.innerText = "카메라에 접근할 수 없어요.";
   }
 }
-
 startCamera();
 
-// 2) 버튼 눌렀을 때 1초 동안 녹화
+// -----------------------------------------------------------
+// 2) 버튼 누르면 1초 녹화
+// -----------------------------------------------------------
 analyzeBtn.addEventListener("click", () => {
   if (!stream) {
     statusText.innerText = "카메라가 아직 준비되지 않았어요.";
@@ -30,53 +37,42 @@ analyzeBtn.addEventListener("click", () => {
 
   analyzeBtn.disabled = true;
   statusText.innerText = "1초 동안 영상을 녹화하는 중...";
+  recordedChunks = [];
 
-  recordedChunks = []; // 이전 녹화 데이터 초기화
-
-  // MediaRecorder 생성
   try {
     mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
   } catch (e) {
     console.error("MediaRecorder 생성 실패:", e);
-    statusText.innerText = "이 브라우저에서는 녹화를 지원하지 않을 수 있어요.";
+    statusText.innerText = "녹화를 지원하지 않는 브라우저입니다.";
     analyzeBtn.disabled = false;
     return;
   }
 
-  // 조각 데이터 들어올 때마다 배열에 저장
-  mediaRecorder.ondataavailable = (event) => {
-    if (event.data && event.data.size > 0) {
-      recordedChunks.push(event.data);
-    }
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
   };
 
-  // 녹화 끝났을 때
   mediaRecorder.onstop = () => {
-    const videoBlob = new Blob(recordedChunks, { type: "video/webm" });
-    console.log("녹화 완료, Blob 크기:", videoBlob.size);
-
-    sendVideoToServer(videoBlob);
+    const blob = new Blob(recordedChunks, { type: "video/webm" });
+    sendVideoToServer(blob);   // ⭐ 여기서 진짜 서버로 전송!!
   };
 
-  // 녹화 시작
   mediaRecorder.start();
-  console.log("녹화 시작");
 
-  // 1초 후에 자동 종료
   setTimeout(() => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      mediaRecorder.stop();
-      console.log("녹화 종료");
-    }
+    if (mediaRecorder.state === "recording") mediaRecorder.stop();
   }, 1000);
 });
 
-// 3) 동영상 Blob 서버로 보내기
+// -----------------------------------------------------------
+// 3) 서버에 동영상 Blob 보내고 응답 받기
+// -----------------------------------------------------------
 async function sendVideoToServer(videoBlob) {
   const formData = new FormData();
-  formData.append("video", videoBlob, "clip.webm"); // 필드 이름: "video"
+  formData.append("video", videoBlob, "clip.webm");
 
   statusText.innerText = "서버로 전송 중...";
+  showAnalyzing();   // ⭐ 오버레이 켜기
 
   try {
     const res = await fetch("http://localhost:5000/analyze-emotion", {
@@ -85,23 +81,135 @@ async function sendVideoToServer(videoBlob) {
     });
 
     if (!res.ok) {
-      console.error("서버 오류:", res.status);
-      statusText.innerText = "서버에서 오류가 발생했어요 🥲";
-      analyzeBtn.disabled = false;
+      statusText.innerText = "서버 오류가 발생했어요 🥲";
       return;
     }
 
     const data = await res.json();
     console.log("서버 응답:", data);
 
-    // F-200 기준: 여기까지 오면 "전송 + 응답 수신" 성공
-    statusText.innerText = `분석 완료! 주요 감정: ${data.main_emotion || "알 수 없음"}`;
-    // F-300에서 data.emotions, data.playlists 등을 이용해 UI 더 꾸밀 예정
+    if (!data.success) {
+      statusText.innerText = data.error || "분석 실패 🥲";
+      return;
+    }
+
+    statusText.innerText = `분석 완료! 주요 감정: ${
+      emotionKeyToKorean(data.dominant_emotion)
+    }`;
+
+    renderResultCard(data);    // ⭐ 결과 화면 그리기
 
   } catch (err) {
     console.error("요청 실패:", err);
     statusText.innerText = "서버 요청에 실패했어요 🥲";
   } finally {
+    hideAnalyzing();      // ⭐ 오버레이 끄기
     analyzeBtn.disabled = false;
   }
+}
+
+// -----------------------------------------------------------
+// 4) 분석 중 오버레이
+// -----------------------------------------------------------
+function showAnalyzing() {
+  analyzingScreen.classList.remove("hidden");
+  startEmojiAnimation();
+}
+
+function hideAnalyzing() {
+  analyzingScreen.classList.add("hidden");
+  stopEmojiAnimation();
+}
+
+function startEmojiAnimation() {
+  const emojis = ["😶‍🌫️", "😊", "😢", "😡", "🤔", "🤩", "🥹", "😮"];
+  let i = 0;
+
+  if (emojiIntervalId) clearInterval(emojiIntervalId);
+  emojiIntervalId = setInterval(() => {
+    analyzingEmoji.textContent = emojis[i % emojis.length];
+    i++;
+  }, 400);
+}
+
+function stopEmojiAnimation() {
+  clearInterval(emojiIntervalId);
+  emojiIntervalId = null;
+}
+
+// -----------------------------------------------------------
+// 5) 감정 매핑
+// -----------------------------------------------------------
+function emotionKeyToKorean(key) {
+  const map = {
+    happy: "행복",
+    sad: "슬픔",
+    angry: "분노",
+    surprise: "놀람",
+    fear: "두려움",
+    disgust: "혐오",
+    neutral: "중립",
+  };
+  return map[key] || key;
+}
+
+// -----------------------------------------------------------
+// 6) 결과 카드 렌더링
+// -----------------------------------------------------------
+function renderResultCard(data) {
+  const emotions = data.average_emotions || {};
+  const videos = data.youtube_result?.videos || [];
+
+  // 감정 게이지
+  const emotionEntries = Object.entries(emotions);
+  const total = emotionEntries.reduce((sum, [, v]) => sum + v, 0);
+
+  const bars = emotionEntries
+    .map(([k, v]) => {
+      const percent = total > 0 ? Math.round((v / total) * 100) : 0;
+      return `
+        <div class="emotion-row">
+          <div class="emotion-label">
+            <span class="emotion-name">${emotionKeyToKorean(k)}</span>
+            <span class="emotion-percent">${percent}%</span>
+          </div>
+          <div class="emotion-bar-track">
+            <div class="emotion-bar-fill" style="width:${percent}%;"></div>
+          </div>
+        </div>`;
+    })
+    .join("");
+
+  // 유튜브 top3
+  const yt = videos.slice(0, 3)
+    .map(v => `
+      <a class="playlist-card" href="${v.url}" target="_blank">
+        <div class="playlist-thumb">
+          <img src="${v.thumbnail}" alt="${v.title}">
+        </div>
+        <div class="playlist-info">
+          <h3>${v.title}</h3>
+          <p>유튜브에서 보기 ▶</p>
+        </div>
+      </a>
+    `)
+    .join("");
+
+  resultArea.innerHTML = `
+    <div class="emotion-result">
+      <div class="emotion-result-header">
+        <h3 class="emotion-main-title">오늘의 감정 리포트</h3>
+        <p class="emotion-main-sub">주요 감정: <strong>${
+          emotionKeyToKorean(data.dominant_emotion)
+        }</strong></p>
+      </div>
+
+      <div class="emotion-bars">${bars}</div>
+
+      <div class="playlist-section">
+        <h4 class="playlist-title">이 기분에 어울리는 영상 🎧</h4>
+        <div class="playlist-list">${yt}</div>
+      </div>
+    </div>
+  `;
 }

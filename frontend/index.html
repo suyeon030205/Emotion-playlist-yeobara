@@ -1,69 +1,78 @@
-
 <link rel="stylesheet" href="style.css" />
 <body>
   <div class="emotion-app">
     <header class="emotion-header">
       <h1>Emotion Playlist 💿</h1>
-   
     </header>
 
-    <main class="emotion-main">
-      <!-- 왼쪽: 웹캠 카드 -->
-      <section class="card camera-card">
-        <div class="card-top">
-          <span class="chip chip-live">LIVE</span>
-          <span class="card-label">Mood Camera</span>
-        </div>
-        <div class="camera-frame">
-          <video id="video" autoplay playsinline></video>
-        </div>
+    <!-- ⭐ 1번 화면: 카메라 + 버튼 -->
+    <div id="screen-1">
+      <main class="emotion-main">
+        <!-- 왼쪽: 웹캠 카드 -->
+        <section class="card camera-card">
+          <div class="card-top">
+            <span class="chip chip-live">LIVE</span>
+            <span class="card-label">Mood Camera</span>
+          </div>
+          <div class="camera-frame">
+            <video id="video" autoplay playsinline></video>
+          </div>
+        </section>
+
+        <!-- 오른쪽: 캐릭터 + 상태 + 버튼 -->
+        <section class="card side-card">
+          <div class="mascot-row">
+            <div class="mascot-avatar">
+              <span class="mascot-emoji">🫧</span>
+            </div>
+            <div class="mascot-copy">
+              <p class="emotion-subtitle">
+                1초 동안 표정을 찍고,<br />
+                지금 내 기분을 닮은 음악을 추천받아 보세요.
+              </p>
+            </div>
+          </div>
+
+          <div class="status-bubble">
+            <span class="status-icon">💬</span>
+            <p id="status-text" class="status-text">
+              아직 분석 전이에요. 버튼을 눌러 시작해 보세요!
+            </p>
+          </div>
+
+          <button id="analyze-btn" class="analyze-btn">
+            ✨ 감정 분석 시작하기
+          </button>
+        </section>
+      </main>
+    </div>
+
+    <!-- ⭐ 3번 화면: 결과 전용 페이지 -->
+    <div id="screen-3" class="hidden">
+      <section id="result-area" class="card result-card">
+        <!-- JS에서 여기 전체를 갈아끼워서
+             게이지 + 유튜브 영상 3개를 넣을 거야 -->
       </section>
 
-      <!-- 오른쪽: 캐릭터 + 상태 + 버튼 -->
-      <section class="card side-card">
-        <div class="mascot-row">
-          <div class="mascot-avatar">
-            <span class="mascot-emoji">🫧</span>
-          </div>
-          <div class="mascot-copy">
-               <p class="emotion-subtitle">
+      <button id="retry-btn" class="retry-btn">
+        다시 분석해 보기 🔁
+      </button>
+    </div>
+  </div>
 
-        1초 동안 표정을 찍고,<br />
-        지금 내 기분을 닮은 음악을 추천받아 보세요.
-        
+  <!-- ⭐ 2번째 페이지 역할: 분석 중 오버레이 (그대로 유지) -->
+  <div id="analyzing-screen" class="analyzing-screen hidden">
+    <div class="analyzing-card">
+      <div class="big-emoji" id="analyzing-emoji">😶‍🌫️</div>
+      <p class="analyzing-title">감정을 분석하는 중이에요...</p>
+      <p class="analyzing-desc">
+        잠시만 기다려 주세요!<br />
+        당신의 표정에서 느껴지는 무드를 해석하고 있어요 ✨
       </p>
-       
-          </div>
-        </div>
-
-        <div class="status-bubble">
-          <span class="status-icon">💬</span>
-          <p id="status-text" class="status-text">
-            아직 분석 전이에요. 버튼을 눌러 시작해 보세요!
-          </p>
-        </div>
-
-        <button id="analyze-btn" class="analyze-btn">
-          ✨ 감정 분석 시작하기
-        </button>
-
-        
-      </section>
-    </main>
-
-    <!-- 아래: 결과 카드 -->
-    <section id="result-area" class="card result-card">
-      <div class="card-top">
-        <span class="card-label">오늘의 감정 리포트</span>
+      <div class="dots-loading">
+        <span></span><span></span><span></span>
       </div>
-      <div class="result-placeholder">
-        <span class="result-emoji">🌈</span>
-        <p>
-          분석이 완료되면 여기에서<br />
-          감정 점수와 플레이리스트를 볼 수 있어요.
-        </p>
-      </div>
-    </section>
+    </div>
   </div>
 
   <script src="script.js"></script>
