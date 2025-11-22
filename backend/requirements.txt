@@ -1,0 +1,10 @@
+flask==3.0.2
+flask-cors>=4.0.1
+google-api-python-client==2.121.0
+deepface==0.0.93
+
+tensorflow==2.20.0
+tf-keras
+
+opencv-python
+numpy
