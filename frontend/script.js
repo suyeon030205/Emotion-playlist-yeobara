@@ -3,7 +3,6 @@ const analyzeBtn = document.getElementById("analyze-btn");
 const statusText = document.getElementById("status-text");
 const resultArea = document.getElementById("result-area");
 
-
 const analyzingScreen = document.getElementById("analyzing-screen");
 const analyzingEmoji = document.getElementById("analyzing-emoji");
 
@@ -18,14 +17,14 @@ const signupForm = document.getElementById("signup-form");
 const toSignupLink = document.getElementById("to-signup");
 const toLoginLink = document.getElementById("to-login");
 
-
-
 let stream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 let emojiIntervalId = null;
 
-
+// -----------------------------------------------------------
+// 0) 화면 전환 함수들
+// -----------------------------------------------------------
 function showLoginScreen() {
   screenLogin.classList.remove("hidden");
   screenSignup.classList.add("hidden");
@@ -61,41 +60,81 @@ toLoginLink.addEventListener("click", (e) => {
   showLoginScreen();
 });
 
-// 로그인 폼 submit
-loginForm.addEventListener("submit", (e) => {
+// -----------------------------------------------------------
+// ✅ 1) 로그인 폼 submit (서버 연결)
+// -----------------------------------------------------------
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
 
-  console.log("로그인 시도:", username, password);
-  // TODO: 나중에 로그인 API 붙이기
+  try {
+    // auth.py의 /login 엔드포인트로 요청
+    const res = await fetch("http://127.0.0.1:5000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Flask-Login 세션 유지를 위해 필수
+      credentials: "include", 
+      body: JSON.stringify({ username, password }),
+    });
 
-  showMainScreen();
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      console.log("로그인 성공:", data.message);
+      showMainScreen();
+    } else {
+      alert(data.message || "로그인에 실패했습니다.");
+    }
+  } catch (err) {
+    console.error("로그인 요청 오류:", err);
+    alert("서버와 통신 중 오류가 발생했습니다.");
+  }
 });
 
 
-// 회원가입 폼 submit
-signupForm.addEventListener("submit", (e) => {
+// -----------------------------------------------------------
+// ✅ 2) 회원가입 폼 submit (서버 연결)
+// -----------------------------------------------------------
+signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("signup-username").value;
   const password = document.getElementById("signup-password").value;
 
-  console.log("회원가입 시도:", username, password);
-  // TODO: 나중에 회원가입 API 붙이면 여기서 fetch
+  try {
+    // auth.py의 /register 엔드포인트로 요청
+    const res = await fetch("http://127.0.0.1:5000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
 
-  // 가입 후 로그인 화면으로 돌려보내는 흐름
-  showLoginScreen();
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      alert("회원가입이 완료되었습니다! 로그인해주세요.");
+      showLoginScreen();
+    } else {
+      alert(data.message || "회원가입 실패");
+    }
+  } catch (err) {
+    console.error("회원가입 요청 오류:", err);
+    alert("서버와 통신 중 오류가 발생했습니다.");
+  }
 });
-
 
 // 앱 시작 시 로그인 화면 먼저
 showLoginScreen();
 
 
 // -----------------------------------------------------------
-// 1) 웹캠 켜기
+// 3) 웹캠 켜기
 // -----------------------------------------------------------
 async function startCamera() {
   try {
@@ -109,9 +148,8 @@ async function startCamera() {
 }
 
 
-
 // -----------------------------------------------------------
-// 2) 버튼 누르면 1초 녹화
+// 4) 버튼 누르면 1초 녹화
 // -----------------------------------------------------------
 analyzeBtn.addEventListener("click", () => {
   if (!stream) {
@@ -138,7 +176,7 @@ analyzeBtn.addEventListener("click", () => {
 
   mediaRecorder.onstop = () => {
     const blob = new Blob(recordedChunks, { type: "video/webm" });
-    sendVideoToServer(blob);   // ⭐ 여기서 진짜 서버로 전송!!
+    sendVideoToServer(blob);   
   };
 
   mediaRecorder.start();
@@ -149,17 +187,17 @@ analyzeBtn.addEventListener("click", () => {
 });
 
 // -----------------------------------------------------------
-// 3) 서버에 동영상 Blob 보내고 응답 받기
+// 5) 서버에 동영상 Blob 보내고 응답 받기
 // -----------------------------------------------------------
 async function sendVideoToServer(videoBlob) {
   const formData = new FormData();
   formData.append("video", videoBlob, "clip.webm");
 
   statusText.innerText = "서버로 전송 중...";
-  showAnalyzing();   // ⭐ 오버레이 켜기
+  showAnalyzing();   // 오버레이 켜기
 
   try {
-    const res = await fetch("http://localhost:5000/analyze-emotion", {
+    const res = await fetch("http://127.0.0.1:5000/analyze-emotion", {
       method: "POST",
       body: formData,
     });
@@ -181,19 +219,19 @@ async function sendVideoToServer(videoBlob) {
       emotionKeyToKorean(data.dominant_emotion)
     }`;
 
-    renderResultCard(data);    // ⭐ 결과 화면 그리기
+    renderResultCard(data);    // 결과 화면 그리기
 
   } catch (err) {
     console.error("요청 실패:", err);
     statusText.innerText = "서버 요청에 실패했어요 🥲";
   } finally {
-    hideAnalyzing();      // ⭐ 오버레이 끄기
+    hideAnalyzing();      // 오버레이 끄기
     analyzeBtn.disabled = false;
   }
 }
 
 // -----------------------------------------------------------
-// 4) 분석 중 오버레이
+// 6) 분석 중 오버레이
 // -----------------------------------------------------------
 function showAnalyzing() {
   analyzingScreen.classList.remove("hidden");
@@ -222,7 +260,7 @@ function stopEmojiAnimation() {
 }
 
 // -----------------------------------------------------------
-// 5) 감정 매핑
+// 7) 감정 매핑
 // -----------------------------------------------------------
 function emotionKeyToKorean(key) {
   const map = {
@@ -238,7 +276,7 @@ function emotionKeyToKorean(key) {
 }
 
 // -----------------------------------------------------------
-// 6) 결과 카드 렌더링
+// 8) 결과 카드 렌더링
 // -----------------------------------------------------------
 function renderResultCard(data) {
   const emotions = data.average_emotions || {};

@@ -9,7 +9,7 @@ from mapping_rules import get_recommendation_keyword
 from youtube_client import search_youtube_videos
 
 app = Flask(__name__)   # app이 서버 전체
-CORS(app)  # 프론트랑 연결시 필요 (CORS 문제 해결)
+CORS(app, supports_credentials=True)  # 프론트랑 연결시 필요 (CORS 문제 해결)
 
 app.config['SECRET_KEY'] = 'hackathon_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
