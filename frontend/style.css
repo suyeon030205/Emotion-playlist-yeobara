@@ -8,7 +8,6 @@
   display: none !important;
 }
 
-
 body {
   margin: 0;
   min-height: 100vh;
@@ -568,4 +567,88 @@ body {
 .retry-btn:active {
   transform: translateY(0);
   box-shadow: 0 8px 16px rgba(15, 23, 42, 0.3);
+}
+
+/* 공통: 화면 래퍼 */
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--background);
+}
+
+/* 로그인/회원가입 카드 */
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px 24px 24px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.25);
+  text-align: center;
+}
+
+.auth-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.auth-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.auth-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  outline: none;
+}
+
+.auth-form input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+
+.auth-btn {
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #fff;
+}
+
+.auth-helper {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.auth-helper a {
+  color: #6366f1;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* 이미 있는 hidden 클래스 그대로 사용 */
+.hidden {
+  display: none;
 }

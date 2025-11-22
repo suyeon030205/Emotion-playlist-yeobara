@@ -390,3 +390,149 @@ function onRetryClick(e) {
     "아직 분석 전이에요. 버튼을 눌러 시작해 보세요!";
   showMainScreen();
 }
+
+// ===== 9. 로그인/회원가입 기능 추가 =====
+
+// 로그인/회원가입 관련 DOM 요소들
+let screenLogin;
+let screenSignup;
+let screenMain;
+let loginForm;
+let signupForm;
+let toSignupLink;
+let toLoginLink;
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("[FRONT] Auth DOMContentLoaded");
+
+  // HTML에 있을 수도/없을 수도 있는 요소들 안전하게 찾기
+  screenLogin = document.getElementById("screen-login");
+  screenSignup = document.getElementById("screen-signup");
+  screenMain = document.getElementById("screen-main");
+
+  loginForm = document.getElementById("login-form");
+  signupForm = document.getElementById("signup-form");
+  toSignupLink = document.getElementById("to-signup");
+  toLoginLink = document.getElementById("to-login");
+
+  // 로그인/회원가입 화면 자체가 없는 경우는 그냥 건너뜀
+  if (!screenLogin && !screenSignup && !screenMain) {
+    console.log("[FRONT] Auth 관련 화면이 없어서 로그인/회원가입 스킵");
+    return;
+  }
+
+  // --- 화면 전환 함수들 (이름 충돌 방지: showMainScreen과 분리) ---
+  function showLoginScreen() {
+    if (screenLogin) screenLogin.classList.remove("hidden");
+    if (screenSignup) screenSignup.classList.add("hidden");
+    if (screenMain) screenMain.classList.add("hidden");
+  }
+
+  function showSignupScreen() {
+    if (screenLogin) screenLogin.classList.add("hidden");
+    if (screenSignup) screenSignup.classList.remove("hidden");
+    if (screenMain) screenMain.classList.add("hidden");
+  }
+
+  function showAppMainScreen() {
+    if (screenLogin) screenLogin.classList.add("hidden");
+    if (screenSignup) screenSignup.classList.add("hidden");
+    if (screenMain) screenMain.classList.remove("hidden");
+
+    // 메인 화면 들어올 때, 카메라가 아직 안 켜져 있으면 켜기
+    if (!stream) {
+      startCamera();
+    }
+  }
+
+  // "회원가입 하기" 링크
+  if (toSignupLink) {
+    toSignupLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSignupScreen();
+    });
+  }
+
+  // "로그인으로 돌아가기" 링크
+  if (toLoginLink) {
+    toLoginLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showLoginScreen();
+    });
+  }
+
+  // ✅ 로그인 폼 submit
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const usernameInput = document.getElementById("login-username");
+      const passwordInput = document.getElementById("login-password");
+      const username = usernameInput ? usernameInput.value : "";
+      const password = passwordInput ? passwordInput.value : "";
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // Flask-Login 세션 유지용
+          credentials: "include",
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          console.log("로그인 성공:", data.message);
+          showAppMainScreen();
+        } else {
+          alert(data.message || "로그인에 실패했습니다.");
+        }
+      } catch (err) {
+        console.error("로그인 요청 오류:", err);
+        alert("서버와 통신 중 오류가 발생했습니다.");
+      }
+    });
+  }
+
+  // ✅ 회원가입 폼 submit
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const usernameInput = document.getElementById("signup-username");
+      const passwordInput = document.getElementById("signup-password");
+      const username = usernameInput ? usernameInput.value : "";
+      const password = passwordInput ? passwordInput.value : "";
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          alert("회원가입이 완료되었습니다! 로그인해주세요.");
+          showLoginScreen();
+        } else {
+          alert(data.message || "회원가입 실패");
+        }
+      } catch (err) {
+        console.error("회원가입 요청 오류:", err);
+        alert("서버와 통신 중 오류가 발생했습니다.");
+      }
+    });
+  }
+
+  // 앱 시작 시 로그인 화면 먼저
+  if (screenLogin) {
+    showLoginScreen();
+  }
+});
