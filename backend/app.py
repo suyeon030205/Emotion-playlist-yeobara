@@ -5,9 +5,30 @@ import os
 from emotion_analyzer import analyze_video_emotion
 from mapping_rules import get_recommendation_keyword
 from youtube_client import search_youtube_videos
+from flask_login import LoginManager
+from models import db, User
+from auth import auth_bp
 
 app = Flask(__name__)   # app이 서버 전체
-CORS(app)  # 프론트랑 연결시 필요 (CORS 문제 해결)
+CORS(app, supports_credentials=True)  # 프론트랑 연결시 필요 (CORS 문제 해결)
+
+app.config['SECRET_KEY'] = 'hackathon_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+with app.app_context():
+    db.create_all()
+
+app.register_blueprint(auth_bp)
 
 UPLOAD_DIR = "tmp"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -48,9 +69,6 @@ def analyze_and_search():
                 result = retry_result
             else:
                 return jsonify(result), 500
-
-    average_emotions = result.get("average_emotions")
-    dominant_emotion = result.get("dominant_emotion")
 
     # 비디오 삭제
     if os.path.exists(abs_video_path):
