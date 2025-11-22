@@ -1,12 +1,55 @@
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css" />
 <body>
-  <div class="emotion-app">
-    <header class="emotion-header">
-      <h1>Emotion Playlist 💿</h1>
-    </header>
+<!-- 로그인 화면 -->
+<div id="screen-login" class="screen">
+  <div class="auth-card">
+    <h1 class="auth-title">Emotion Playlist 💿</h1>
+    <p class="auth-subtitle">로그인하고 기분 플리를 추천받아 보세요.</p>
 
-    <!-- ⭐ 1번 화면: 카메라 + 버튼 -->
-    <div id="screen-1">
+    <form id="login-form" class="auth-form">
+      <!-- ✅ 이메일 대신 아이디(또는 닉네임)만 -->
+      <input type="text" id="login-username" placeholder="아이디" required />
+      <input type="password" id="login-password" placeholder="비밀번호" required />
+      <button type="submit" class="auth-btn">로그인</button>
+    </form>
+
+    <p class="auth-helper">
+      아직 계정이 없나요?
+      <a href="#" id="to-signup">회원가입 하기</a>
+    </p>
+  </div>
+</div>
+
+
+<!-- 회원가입 화면 -->
+<div id="screen-signup" class="screen hidden">
+  <div class="auth-card">
+    <h1 class="auth-title">회원가입</h1>
+    <p class="auth-subtitle">간단한 정보만으로 시작해요.</p>
+
+    <form id="signup-form" class="auth-form">
+      <!-- ✅ 이메일 제거, 아이디 + 비밀번호만 -->
+      <input type="text" id="signup-username" placeholder="아이디" required />
+      <input type="password" id="signup-password" placeholder="비밀번호" required />
+      <button type="submit" class="auth-btn">회원가입 완료</button>
+    </form>
+
+    <p class="auth-helper">
+      이미 계정이 있나요?
+      <a href="#" id="to-login">로그인으로 돌아가기</a>
+    </p>
+  </div>
+</div>
+
+
+  <!-- 3) 메인 화면 (지금 만든 감정 분석 화면) -->
+  <div id="screen-main" class="screen hidden">
+    <div class="emotion-app">
+      <header class="emotion-header">
+        <h1>Emotion Playlist 💿</h1>
+      </header>
+
       <main class="emotion-main">
         <!-- 왼쪽: 웹캠 카드 -->
         <section class="card camera-card">
@@ -45,22 +88,17 @@
           </button>
         </section>
       </main>
-    </div>
 
-    <!-- ⭐ 3번 화면: 결과 전용 페이지 -->
-    <div id="screen-3" class="hidden">
+      <!-- 아래: 결과 카드 -->
       <section id="result-area" class="card result-card">
-        <!-- JS에서 여기 전체를 갈아끼워서
-             게이지 + 유튜브 영상 3개를 넣을 거야 -->
+        <div class="card-top">
+          <span class="card-label">오늘의 감정 리포트</span>
+        </div>
       </section>
-
-      <button id="retry-btn" class="retry-btn">
-        다시 분석해 보기 🔁
-      </button>
     </div>
   </div>
 
-  <!-- ⭐ 2번째 페이지 역할: 분석 중 오버레이 (그대로 유지) -->
+  <!-- 분석 중 오버레이 -->
   <div id="analyzing-screen" class="analyzing-screen hidden">
     <div class="analyzing-card">
       <div class="big-emoji" id="analyzing-emoji">😶‍🌫️</div>
