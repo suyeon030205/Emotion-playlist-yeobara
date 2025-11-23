@@ -12,16 +12,14 @@ let screen1;
 let screen3;
 let retryBtn;
 
-// 화면 섹션
-const screenLogin = document.getElementById("screen-login");
-const screenSignup = document.getElementById("screen-signup");
-const screenMain = document.getElementById("screen-main");
-
-// 로그인/회원가입 폼 & 링크
-const loginForm = document.getElementById("login-form");
-const signupForm = document.getElementById("signup-form");
-const toSignupLink = document.getElementById("to-signup");
-const toLoginLink = document.getElementById("to-login");
+// 로그인/회원가입 관련 전역 변수
+let screenLogin;
+let screenSignup;
+let screenMain;
+let loginForm;
+let signupForm;
+let toSignupLink;
+let toLoginLink;
 
 let stream = null;
 let mediaRecorder = null;
@@ -160,6 +158,7 @@ async function sendVideoToServer(videoBlob) {
     const res = await fetch("http://127.0.0.1:5000/analyze-emotion", {
       method: "POST",
       body: formData,
+      credentials: "include",  // ← 이 줄 반드시 넣어야 함!!!
     });
 
     console.log("[FRONT] fetch 응답 코드:", res.status);
@@ -404,15 +403,6 @@ function onRetryClick(e) {
 
 // ===== 9. 로그인/회원가입 기능 추가 =====
 
-// 로그인/회원가입 관련 DOM 요소들
-let screenLogin;
-let screenSignup;
-let screenMain;
-let loginForm;
-let signupForm;
-let toSignupLink;
-let toLoginLink;
-
 document.addEventListener("DOMContentLoaded", () => {
   console.log("[FRONT] Auth DOMContentLoaded");
 
@@ -545,5 +535,167 @@ document.addEventListener("DOMContentLoaded", () => {
   // 앱 시작 시 로그인 화면 먼저
   if (screenLogin) {
     showLoginScreen();
+  }
+});
+
+
+// =====================================================
+// 10. 📅 감정 기록 달력(지난 기록 보기) 기능 추가
+//    - 위 코드 수정 없이, 밑에만 새 기능 추가
+// =====================================================
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("[FRONT] History DOMContentLoaded");
+
+  const btnHistory = document.getElementById("btn-history");
+  const modalHistory = document.getElementById("modal-history");
+  const btnCloseHistory = document.getElementById("btn-close-history");
+  const calendarGrid = document.getElementById("calendar-grid");
+  const calYearMonth = document.getElementById("cal-year-month");
+  const historyDetail = document.getElementById("history-detail");
+  const detailDate = document.getElementById("detail-date");
+  const detailEmotion = document.getElementById("detail-emotion");
+  const detailVideo = document.getElementById("detail-video");
+
+  // 감정별 이모지 (달력에서 사용)
+  const emotionEmojis = {
+    happy: "🥰",
+    sadness: "😢",
+    sad: "😢",
+    angry: "🤬",
+    anger: "🤬",
+    surprise: "😲",
+    surprised: "😲",
+    fear: "😨",
+    fearful: "😨",
+    disgust: "🤮",
+    disgusted: "🤮",
+    neutral: "😐",
+  };
+
+  // history UI가 없으면 기능 스킵
+  if (!btnHistory || !modalHistory || !calendarGrid || !calYearMonth) {
+    console.log("[FRONT] History UI 미존재, 기록 달력 기능 스킵");
+    return;
+  }
+
+  // "지난 기록 보기" 버튼 클릭 → 모달 열기 + 데이터 로딩
+  btnHistory.addEventListener("click", async () => {
+    modalHistory.classList.remove("hidden");
+    if (historyDetail) historyDetail.classList.add("hidden");
+    await loadAndRenderCalendar();
+  });
+
+  // 모달 닫기 버튼
+  if (btnCloseHistory) {
+    btnCloseHistory.addEventListener("click", () => {
+      modalHistory.classList.add("hidden");
+    });
+  }
+
+  // ESC 키로도 닫기 (선택 사항)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modalHistory.classList.contains("hidden")) {
+      modalHistory.classList.add("hidden");
+    }
+  });
+
+  // ==== 서버에서 기록 가져와서 달력 그리기 ====
+  async function loadAndRenderCalendar() {
+    try {
+      const res = await fetch("http://127.0.0.1:5000/history", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // 로그인 세션 필요
+      });
+
+      const data = await res.json();
+      console.log("[FRONT] history 응답:", data);
+
+      if (res.ok && data.success && Array.isArray(data.history)) {
+        renderCalendar(data.history);
+      } else {
+        alert(data.message || "기록을 불러오지 못했어요.");
+      }
+    } catch (err) {
+      console.error("[FRONT] history 로딩 오류:", err);
+      alert("서버 통신 중 오류가 발생했습니다.");
+    }
+  }
+
+  // ==== 달력 그리기 로직 ====
+  function renderCalendar(records) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0 ~ 11
+
+    calYearMonth.innerText = `${year}년 ${month + 1}월`;
+    calendarGrid.innerHTML = "";
+
+    const firstDay = new Date(year, month, 1).getDay(); // 0:일 ~ 6:토
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    // 1) 1일 전까지 빈칸
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement("div");
+      calendarGrid.appendChild(empty);
+    }
+
+    // 2) 날짜 채우기
+    for (let day = 1; day <= lastDate; day++) {
+      const dayDiv = document.createElement("div");
+      dayDiv.className = "day";
+      dayDiv.textContent = day;
+
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
+
+      // records: [{ date, emotion, video_url, title }, ...]
+      const record = records.find((r) => (r.date || "").startsWith(dateStr));
+
+      if (record) {
+        dayDiv.classList.add("has-record");
+
+        const emojiSpan = document.createElement("span");
+        emojiSpan.textContent =
+          emotionEmojis[record.emotion] || "✨";
+        dayDiv.appendChild(emojiSpan);
+
+        dayDiv.addEventListener("click", () => {
+          showDetail(record);
+        });
+      }
+
+      calendarGrid.appendChild(dayDiv);
+    }
+  }
+
+  // ==== 날짜 클릭 시 상세 정보 표시 ====
+  function showDetail(record) {
+    if (!historyDetail || !detailDate || !detailEmotion || !detailVideo) return;
+
+    historyDetail.classList.remove("hidden");
+
+    const [d, t] = (record.date || "").split(" ");
+    const kEmotion = emotionKeyToKorean(record.emotion);
+
+    detailDate.innerText = `${d || ""}${t ? ` (${t})` : ""}`;
+    detailEmotion.innerHTML = `
+      기분: <strong>${kEmotion}</strong> ${
+      emotionEmojis[record.emotion] || ""
+    }
+    `;
+
+    if (record.video_url) {
+      detailVideo.innerHTML = `
+        <a href="${record.video_url}"
+           target="_blank"
+           style="color:#4f46e5; text-decoration:underline;">
+          🎬 ${record.title || "추천 영상 보기"}
+        </a>
+      `;
+    } else {
+      detailVideo.innerText = "추천 영상 없음";
+    }
   }
 });
