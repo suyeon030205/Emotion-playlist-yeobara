@@ -16,7 +16,7 @@ Emotion Playlist – 표정을 찍으면, 지금 당신의 감정에 맞는 음�
 -	진유민:Ai/데이터 매핑( 비디오 프레임 추출 및 감지, 프레임별 감정 분류 모델 통합, 순간 감정 평균화, 감정매핑 및 키워드 결정)
   
 시연 영상
-(필수) Youtube 링크 (선택) Github Repository 페이지에서 바로 볼 수 있도록 넣어주셔도 좋습니다.
+https://youtu.be/ezL3r66585w?si=DZKDpgSqYU16PYWZ
 
 서비스 소개
 서비스 개요
