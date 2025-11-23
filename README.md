@@ -1,5 +1,5 @@
 
-<여바라> - <Emotion Playlist>
+<여바라-Emotion Playlist>
 
 서비스 요약
 Emotion Playlist – 표정을 찍으면, 지금 당신의 감정에 맞는 음악을 추천해주는 AI 서비스
