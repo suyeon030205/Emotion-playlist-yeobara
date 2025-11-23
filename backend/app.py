@@ -5,8 +5,9 @@ import os
 from emotion_analyzer import analyze_video_emotion
 from mapping_rules import get_recommendation_keyword
 from youtube_client import search_youtube_videos
-from flask_login import LoginManager
-from models import db, User
+
+from flask_login import LoginManager, current_user, login_required
+from models import db, User, EmotionRecord
 from auth import auth_bp
 
 app = Flask(__name__)   # app이 서버 전체
@@ -36,7 +37,30 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.route("/")
 def home():
-    return "Flask Running"
+  return "Flask Running"
+
+
+# ✅ 감정 기록 조회 API (/history)
+@app.route("/history", methods=["GET"])
+@login_required
+def get_history():
+    records = (
+        EmotionRecord.query
+        .filter_by(user_id=current_user.id)
+        .order_by(EmotionRecord.created_at.desc())
+        .all()
+    )
+
+    history_data = []
+    for r in records:
+        history_data.append({
+            "date": r.created_at.strftime("%Y-%m-%d %H:%M"),
+            "emotion": r.emotion,
+            "title": r.video_title,
+            "video_url": r.video_url,
+        })
+
+    return jsonify({"success": True, "history": history_data})
 
 
 # 감정 분석 & 유튜브 API 연결
@@ -108,6 +132,21 @@ def analyze_and_search():
             "error": "Failed to retrieve recommended videos."
         }), 500
 
+    # ✅ 여기서부터 추가: 감정 기록 DB 저장
+    if current_user.is_authenticated:
+        videos = youtube_result.get("videos", []) or []
+        top_video = videos[0] if len(videos) > 0 else None
+
+        new_record = EmotionRecord(
+            user_id=current_user.id,
+            emotion=dominant_emotion,
+            video_title=top_video.get("title") if top_video else "추천 영상 없음",
+            video_url=top_video.get("url") if top_video else ""
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        print(f"💾 기록 저장 완료: {current_user.username} - {dominant_emotion}")
+
     return jsonify({
         "success": success,
         "average_emotions": average_emotions,
@@ -121,3 +160,4 @@ def analyze_and_search():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    

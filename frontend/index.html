@@ -57,6 +57,8 @@
       <div class="emotion-app">
         <header class="emotion-header">
           <h1>Emotion Playlist 💿</h1>
+          <!-- ✅ 새로 추가된: 지난 기록 보기 버튼 -->
+          <button id="btn-history" class="history-btn-top">📅 지난 기록 보기</button>
         </header>
 
         <!-- ⭐ 1번 화면: 카메라 + 버튼 -->
@@ -103,7 +105,10 @@
 
         <!-- ⭐ 3번 화면: 결과 -->
         <div id="screen-3" class="hidden">
-          <section id="result-area" class="card result-card"></section>
+          <section id="result-area" class="card result-card">
+            <!-- JS에서 여기 전체를 갈아끼워서
+                 게이지 + 유튜브 영상 3개를 넣을 거야 -->
+          </section>
 
           <button id="retry-btn" class="retry-btn" type="button">
             다시 분석해 보기 🔁
@@ -123,6 +128,33 @@
         </p>
         <div class="dots-loading">
           <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ 새로 추가된: 감정 달력 모달 -->
+    <div id="modal-history" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>나의 감정 달력</h2>
+          <button id="btn-close-history" class="close-btn">✖</button>
+        </div>
+
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <span id="cal-year-month"></span>
+          </div>
+          <div class="calendar-weekdays">
+            <div>일</div><div>월</div><div>화</div>
+            <div>수</div><div>목</div><div>금</div><div>토</div>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
+
+        <div id="history-detail" class="history-detail hidden">
+          <h3 id="detail-date"></h3>
+          <p id="detail-emotion"></p>
+          <div id="detail-video"></div>
         </div>
       </div>
     </div>
