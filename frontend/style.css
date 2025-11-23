@@ -1,0 +1,779 @@
+* {
+  box-sizing: border-box;
+}
+/* ===== 레이아웃 / 기본 ===== */
+
+/* 숨김용 공통 클래스 */
+.hidden {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* 가운데 안정감 있게 놓이는 큰 카드 */
+.emotion-app {
+  width: 100%;
+  max-width: 960px;
+  padding: 32px 32px 28px;
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.25);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== 헤더 ===== */
+
+.emotion-header {
+  text-align: center;
+}
+
+.emotion-header h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.emotion-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+/* ===== 메인 레이아웃: 왼쪽/오른쪽 ===== */
+
+.emotion-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+/* 공통 카드 */
+.card {
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+  padding: 12px 12px 16px;
+}
+
+/* 카드 상단 바 */
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted-foreground);
+}
+
+/* 작은 칩(LIVE) – 여기 빨간색 확실히 들어감 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.chip-live {
+  background-color: #fee2e2;  /* 연한 빨강 배경 */
+  border: 1px solid #fecaca;  /* 핑크 테두리 */
+  color: #b91c1c;             /* 진한 레드 텍스트 */
+}
+
+/* ===== 왼쪽: 카메라 카드 ===== */
+
+.camera-card {
+  background: #f3f4ff;
+}
+
+/* 웹캠 프레임 */
+.camera-frame {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #a5b4fc;
+  background: #000;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
+}
+
+/* 실제 비디오 */
+#video {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  transform: scaleX(-1); /* 거울 모드 */
+}
+
+/* ===== 오른쪽: 캐릭터 + 상태 + 버튼 ===== */
+
+.side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 캐릭터 블럭 */
+.mascot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fef3c7, #ffe4e6);
+}
+
+/* 동그란 캐릭터 아이콘 */
+.mascot-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(248, 113, 113, 0.55);
+}
+
+.mascot-emoji {
+  font-size: 28px;
+}
+
+.mascot-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mascot-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #7c2d12;
+}
+
+.mascot-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #92400e;
+}
+
+/* 상태 말풍선 */
+.status-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f3f3f5;
+  border: 1px solid #e5e7eb;
+}
+
+.status-icon {
+  font-size: 23px;
+  margin-top: 1px;
+}
+
+.status-text {
+  margin: 3;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+/* ===== 메인 버튼 – 뚱뚱 + 입체 ===== */
+
+.analyze-btn {
+  margin-top: 4px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+
+  /* 뚱뚱한 그라데이션 버튼 (보라+핑크) */
+  background-image: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #ffffff;
+
+  box-shadow: 0 16px 32px rgba(236, 72, 153, 0.6);
+  transform: translateY(0);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.12s ease;
+}
+
+.analyze-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(236, 72, 153, 0.8);
+}
+
+.analyze-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 12px 26px rgba(236, 72, 153, 0.7);
+}
+
+.analyze-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  box-shadow: none;
+}
+
+/* 버튼 아래 안내 텍스트 */
+.helper-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.helper-emoji {
+  font-size: 16px;
+}
+
+.helper-text {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* ===== 결과 카드 ===== */
+
+.result-card {
+  margin-top: 16px;
+}
+
+/* 분석 전 플레이스홀더 */
+.result-placeholder {
+  margin-top: 6px;
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+  background: linear-gradient(135deg, #eef2ff, #fdf2ff);
+  border: 1px dashed #a5b4fc;
+}
+
+.result-emoji {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.result-placeholder p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+/* ===== 반응형 ===== */
+
+@media (max-width: 860px) {
+  .emotion-app {
+    margin: 16px;
+    padding: 24px 18px 22px;
+  }
+
+  .emotion-main {
+    grid-template-columns: 1fr;
+  }
+
+  #video {
+    height: 260px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emotion-header h1 {
+    font-size: 22px;
+  }
+
+  .emotion-subtitle {
+    font-size: 12px;
+  }
+}
+
+/* === F-300: 감정 분석 결과 카드 === */
+
+.emotion-result {
+  margin-top: 16px;
+  padding: 16px 14px 18px;
+  border-radius: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+/* 상단 타이틀 */
+.emotion-result-header {
+  margin-bottom: 12px;
+}
+
+.emotion-main-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.emotion-main-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 감정 게이지 바 리스트 */
+.emotion-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.emotion-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emotion-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.emotion-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.emotion-percent {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 게이지 바 */
+.emotion-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+}
+
+.emotion-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #ec4899);
+  transition: width 0.25s ease-out;
+}
+
+/* 해시태그 영역 */
+.emotion-tags {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.emotion-tags-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.emotion-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background-color: #eef2ff;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tag-empty {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+
+/* ===== 분석 중 화면 오버레이 ===== */
+
+.analyzing-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.analyzing-screen.hidden {
+  display: none;
+}
+
+.analyzing-card {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 16px;
+  border-radius: 18px;
+  padding: 32px 24px 26px;
+  background: #f9fafb;
+  text-align: center;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+}
+
+.big-emoji {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+
+.analyzing-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.analyzing-desc {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dots-loading span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: #d1d5db;
+  animation: dotBlink 1s infinite both;
+}
+
+.dots-loading span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dots-loading span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotBlink {
+  0% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+  100% { opacity: 0.3; transform: translateY(0); }
+}
+
+/* ===== 유튜브 플레이리스트 카드 ===== */
+
+.playlist-section {
+  margin-top: 14px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.playlist-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.playlist-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.playlist-card {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.playlist-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.playlist-thumb img {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.playlist-info h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #111827;
+}
+
+.playlist-info p {
+  margin: 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* === 3번 화면(결과 페이지) 레이아웃 === */
+#screen-3 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.retry-btn {
+  align-self: flex-end;          /* 오른쪽 아래 쪽에 붙이는 느낌 */
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.retry-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.35);
+}
+
+.retry-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.3);
+}
+
+/* 공통: 화면 래퍼 */
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--background);
+}
+
+/* 로그인/회원가입 카드 */
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px 24px 24px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.25);
+  text-align: center;
+}
+
+.auth-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.auth-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.auth-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  outline: none;
+}
+
+.auth-form input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+
+.auth-btn {
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #fff;
+}
+
+.auth-helper {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.auth-helper a {
+  color: #6366f1;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* 이미 있는 hidden 클래스 그대로 사용 */
+.hidden {
+  display: none;
+}
+
+/* ========================================= */
+/* 🔻 여기부터는 "위 코드에는 있고, 아래에는 없던" 추가분 */
+/* ========================================= */
+
+/* ===== 기록 보기 버튼 (메인 상단) ===== */
+.history-btn-top {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.history-btn-top:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* ===== 달력 모달 (팝업) ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ===== 달력 그리드 ===== */
+.calendar-container {
+  margin-bottom: 20px;
+}
+.calendar-header {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 5px;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day {
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: default;
+}
+
+/* 기록이 있는 날 */
+.day.has-record {
+  background-color: #eef2ff;
+  cursor: pointer;
+  border: 1px solid #c7d2fe;
+  color: #4f46e5;
+  font-weight: bold;
+}
+.day.has-record:hover {
+  background-color: #e0e7ff;
+}
+
+/* ===== 선택된 날짜 상세 정보 ===== */
+.history-detail {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  animation: fadeIn 0.3s ease;
+}
+.history-detail h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
